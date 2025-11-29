@@ -1,0 +1,22 @@
+{
+  "name": "neno-offramp-stripe",
+  "version": "1.0.0",
+  "description": "Off-ramp istantaneo NENO → Euro con payout automatico su conto bancario",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "worker": "node workers/payoutWorker.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "web3": "^4.14.0",
+    "axios": "^1.7.7",
+    "stripe": "^16.12.0",
+    "ioredis": "^5.4.1",
+    "bignumber.js": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
