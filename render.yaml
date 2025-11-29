@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: neno-offramp
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      NODE_VERSION: 20
+
+  - type: worker
+    name: neno-payout-worker
+    env: node
+    buildCommand: npm install
+    startCommand: npm run worker
+    envVars:
+      NODE_VERSION: 20
+
+  - type: redis
+    name: neno-redis
+    ipAllowList: []
+    plan: free
