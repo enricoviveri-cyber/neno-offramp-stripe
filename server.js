@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
-const Web3 = require('web3');
+const { Web3 } = require('web3');           // ← importante le graffe
+const web3 = new Web3('wss://bsc-rpc.publicnode.com');
 const axios = require('axios');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Redis = require('ioredis');
