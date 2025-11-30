@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NENO → Euro (Off-Ramp)</title>
+  <style>
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: linear-gradient(135deg, #1e3c72, #2a5298); 
+      color: white; 
+      text-align: center; 
+      padding: 40px; 
+      margin: 0; 
+      min-height: 100vh; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container { 
+      max-width: 520px; 
+      margin: 0 auto; 
+      background: rgba(255,255,255,0.1); 
+      padding: 50px 40px; 
+      border-radius: 24px; 
+      backdrop-filter: blur(12px); 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    h1 { margin-bottom: 10px; }
+    p { opacity: 0.9; margin-bottom: 30px; }
+    input { 
+      width: 100%; 
+      padding: 18px; 
+      margin: 15px 0; 
+      border: none; 
+      border-radius: 14px; 
+      font-size: 20px; 
+      text-align: center;
+      background: rgba(255,255,255,0.9);
+      color: #000;
+    }
+    button { 
+      width: 100%; 
+      padding: 20px; 
+      background: #00ff88; 
+      color: black; 
+      font-weight: bold; 
+      font-size: 22px;
+      border: none; 
+      border-radius: 14px; 
+      cursor: pointer; 
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+    button:hover { background: #00cc70; transform: scale(1.02); }
+    .wallet { 
+      background: #000; 
+      color: #0f0; 
+      padding: 18px; 
+      border-radius: 12px; 
+      margin: 25px 0; 
+      word-break: break-all; 
+      font-family: monospace; 
+      font-size: 16px;
+    }
+    .success { 
+      background: rgba(0,255,0,0.2); 
+      padding: 25px; 
+      border-radius: 18px; 
+      margin-top: 30px; 
+      border: 1px solid rgba(0,255,0,0.4);
+    }
+    a { text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Vendi NENO → Ricevi Euro</h1>
+    <p>Accredito sul tuo conto bancario in 1-2 giorni</p>
+    
+    <input type="number" id="amount" placeholder="Quanti NENO vuoi vendere?" min="10" step="0.01" required />
+    
+    <button onclick="sellNENO()">VENDI ORA</button>
+    
+    <div id="result"></div>
+  </div>
+
+  <script>
+    async function sellNENO() {
+      const amountInput = document.getElementById('amount');
+      const resultDiv = document.getElementById('result');
+      const amount = parseFloat(amountInput.value);
+
+      if (!amount || amount < 10) {
+        alert("Minimo 10 NENO");
+        return;
+      }
+
+      resultDiv.innerHTML = `<p>Creazione sessione in corso...</p>`;
+
+      try {
+        const res = await fetch("/create-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tokenAmount: amount })
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+          resultDiv.innerHTML = `<p style="color:#ff006e;">Errore: ${data.error || 'Riprova'}</p>`;
+          return;
+        }
+
+        // Copia automaticamente il wallet
+        navigator.clipboard.writeText(data.walletAddress);
+
+        resultDiv.innerHTML = `
+          <div class="success">
+            <h3>Invia esattamente ${data.amountNENO.toFixed(4)} NENO a:</h3>
+            <div class="wallet">${data.walletAddress}</div>
+            <p>Riceverai <strong>€\( {data.eurAmount}</strong> (fee \){data.fee})</p>
+            <p><small>Il sistema monitora automaticamente l'arrivo dei token</small></p>
+            <a href="${data.paymentUrl}" target="_blank">
+              <button style="background:#ff006e; margin-top:20px;">PROCEDI AL PAGAMENTO STRIPE</button>
+            </a>
+          </div>
+        `;
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:#ff006e;">Errore di connessione. Riprova.</p>`;
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
